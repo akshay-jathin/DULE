@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:settings/splash_screen.dart';
 import 'app_routes.dart';  
 import 'login_screen.dart';
 import 'home_screen.dart';
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'DULE',
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.initialRoute,
+      home:SplashScreen(),
       routes: AppRoutes.routes,
       onUnknownRoute: (settings) {
         // Handle unknown routes if needed
