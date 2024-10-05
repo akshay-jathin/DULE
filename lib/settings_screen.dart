@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'app_routes.dart';
 
-// ignore_for_file: must_be_immutable
 class SettingsScreen extends StatefulWidget {
   SettingsScreen({Key? key}) : super(key: key);
 
@@ -20,9 +20,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent, // Transparent status bar
+        statusBarIconBrightness: Brightness.light, // White icons
+        statusBarBrightness: Brightness.dark, // For iOS devices
+      ),
       child: Scaffold(
+        extendBodyBehindAppBar: true, // Extend the body behind the status bar
         resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
         body: SizedBox(
           width: double.maxFinite,
           child: SingleChildScrollView(
@@ -42,12 +49,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
-                    height: 800,
+                    height: 700,
                     width: double.maxFinite,
                     child: Stack(
-                      alignment: Alignment.bottomCenter,
+                      alignment: Alignment.center,
                       children: [
                         _buildTopAppBar(context),
+                        SizedBox(height: 0),
                         Container(
                           width: double.maxFinite,
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 30),
@@ -55,32 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: Color(0XFFFFFFFF),
                             borderRadius: BorderRadius.circular(28),
                           ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildNotificationsToggle(context),
-                              SizedBox(height: 36),
-                              _buildDarkModeToggle(context),
-                              SizedBox(height: 36),
-                              _buildNotificationsToggleSecondary(context),
-                              SizedBox(height: 92),
-                              SizedBox(
-                                width: double.maxFinite,
-                                child: Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0XFFD9D9D9),
-                                  indent: 20,
-                                  endIndent: 22,
-                                ),
-                              ),
-                              SizedBox(height: 20),
-                              _buildAppVersionInfo(context),
-                              SizedBox(height: 14),
-                              _buildAndroidVersionInfo(context),
-                              SizedBox(height:300),
-                            ],
-                          ),
+                          child: _buildSettingsCard(context),
                         ),
                       ],
                     ),
@@ -96,59 +79,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-Widget _buildTopAppBar(BuildContext context) {
-  return Align(
-    alignment: Alignment.topCenter,
-    child: Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0XFFA0DEFF), Color(0XFF4091C6)],
+    Widget _buildTopAppBar(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        width: double.infinity,
+        height: 150, // Set the height to match the profile screen's top bar
+        padding: EdgeInsets.symmetric(horizontal: 16), // Adjust padding
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0XFFA0DEFF), Color(0XFF4091C6)],
+          ),
+        ),
+        child: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop(); // Navigate back to the previous screen
+              },
+              child: IconButton(
+                icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+            SizedBox(width: 12), // Add spacing between the icon and the text
+            Text(
+              "Settings",
+              style: TextStyle(
+                color: Color(0XFFFFFFFF),
+                fontSize: 22,
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppBar(
-            elevation: 0,
-            toolbarHeight: 70, // Adjust to your preferred height
-            backgroundColor: Colors.transparent,
-            automaticallyImplyLeading: false,
-            title: Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop(); // Navigate back to the previous screen
-                  },
-                  child: SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: SvgPicture.asset("assets/images/img_arrow_left.svg"),
-                  ),
-                ),
-                SizedBox(width: 12), // Add spacing between the icon and the text
-                Text(
-                  "Settings",
-                  style: TextStyle(
-                    color: Color(0XFFFFFFFF),
-                    fontSize: 22,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 30),
-        ],
+    );
+  }
+
+
+  Widget _buildSettingsCard(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28),
       ),
-    ),
-  );
-}
+      elevation: 4, // Add shadow effect to the card
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildNotificationsToggle(context),
+            SizedBox(height: 20),
+            _buildDarkModeToggle(context),
+            SizedBox(height: 20),
+            _buildNotificationsToggleSecondary(context),
+            SizedBox(height: 20),
+            Divider(color: Color(0XFFD9D9D9)),
+            SizedBox(height: 20),
+            _buildAppVersionInfo(context),
+            SizedBox(height: 14),
+            _buildAndroidVersionInfo(context),
+            SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
 
   /// Section Widget
   Widget _buildNotificationsToggle(BuildContext context) {
@@ -313,8 +317,8 @@ Widget _buildTopAppBar(BuildContext context) {
   /// Section Widget
   Widget _buildAndroidVersionInfo(BuildContext context) {
     return Container(
+      padding: EdgeInsets.symmetric(horizontal: 2),
       width: double.maxFinite,
-      margin: EdgeInsets.only(left: 6, right: 22),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -341,23 +345,7 @@ Widget _buildTopAppBar(BuildContext context) {
     );
   }
 
-  /// Section Widget
   Widget _buildHandleSection(BuildContext context) {
-    return Container(
-      width: double.maxFinite,
-      margin: EdgeInsets.symmetric(horizontal: 18),
-      child: Column(
-        children: [
-          SizedBox(
-            width: 108,
-            child: Divider(
-              height: 4,
-              thickness: 4,
-              color: Color(0XFF1D1B20),
-            ),
-          ),
-        ],
-      ),
-    );
+    return Container();
   }
 }
