@@ -1,2 +1,2 @@
 # DULE
-dhiwise settings
+DULE app
